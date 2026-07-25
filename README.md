@@ -38,9 +38,10 @@ cd grokson
 source ~/.bashrc
 
 # 4) Run
-grokson
+grokson                                          # CLI chat
 grokson -p "Say hello in one short sentence." -n 64
 MODE=code grokson -p "Write is_prime(n) in Python. Only code." -n 128
+grokson agent                                    # WebUI + bash tool
 ```
 
 ### Environment
@@ -54,6 +55,35 @@ MODE=code grokson -p "Write is_prime(n) in Python. Only code." -n 128
 | `CTX`, `N`, `THREADS`, … | See `scripts/grokson.sh` |
 
 Optional config file: `~/.config/grokson/env` or repo `.env`.
+
+
+## Agent mode (bash + tools)
+
+Plain `grokson` is CLI chat only. For **bash access** and file tools, use llama-server’s built-in agent tools:
+
+```bash
+grokson agent
+# → http://127.0.0.1:8080  (WebUI)
+```
+
+Enabled by default in agent mode:
+
+| Tool | Role |
+|------|------|
+| `exec_shell_command` | **bash** / shell |
+| `read_file` / `write_file` | file I/O |
+| `file_glob_search` / `grep_search` | search |
+| `get_datetime` | clock |
+
+```bash
+# every built-in tool (more power, more risk)
+TOOLS=all grokson agent
+
+# custom port
+PORT=8090 grokson agent
+```
+
+**Security:** tools run as your Linux user with **no sandbox**. Default bind is `127.0.0.1` only. Do not expose the port or enable tools on untrusted networks/content.
 
 ## Tuned defaults (V100 16GB bench)
 
