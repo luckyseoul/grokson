@@ -25,7 +25,7 @@ case "${1:-}" in
 grokson — Qwen3.6-35B-A3B NVFP4 on non-Blackwell GPUs (llama.cpp)
 
   grokson                 Interactive CLI chat (no tools)
-  grokson agent           llama-server + WebUI with bash (exec_shell_command)
+  grokson agent           llama-server + bash tools on 0.0.0.0 (LAN)
   grokson -p "hi" -n 32   One-shot generation
 
 Environment:
@@ -35,14 +35,14 @@ Environment:
   MODE=chat|code          sampling preset (CLI)
   NGL=-1                  auto GPU layers
   TOOLS=...               agent tool list (default includes bash)
-  PORT=8080 HOST=127.0.0.1
+  PORT=8080 HOST=0.0.0.0 (LAN)
 
 Agent tools (llama-server --tools):
   exec_shell_command  ← bash
   read_file write_file file_glob_search grep_search get_datetime
   TOOLS=all           enable every built-in tool (more powerful, more risk)
 
-WARNING: agent bash runs as your user with no sandbox. Keep HOST=127.0.0.1.
+WARNING: agent bash runs as your user with no sandbox. Default HOST=0.0.0.0 for other nodes; use firewall.
 EOF
     exit 0
     ;;

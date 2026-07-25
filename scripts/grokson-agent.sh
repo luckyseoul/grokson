@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# grokson agent — llama-server with built-in tools including bash (exec_shell_command).
-# WARNING: tools run as your user with full shell access. Localhost only by default.
+# grokson agent — llama-server with bash tools, bound for LAN access (headless host).
+# WARNING: tools run as your user with full shell access. Anyone who can reach PORT can drive the shell.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -19,8 +19,11 @@ if [[ ! -x "$SERVER" ]]; then
   done
 fi
 
-HOST="${HOST:-127.0.0.1}"
+# Headless / multi-node: listen on all interfaces by default
+HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-8080}"
+# llama-server forces CORS to localhost when --tools is set unless we override explicitly
+CORS_ORIGINS="${CORS_ORIGINS:-*}"
 NGL="${NGL:--1}"
 CTX="${CTX:-8192}"
 BATCH="${BATCH:-2048}"
@@ -30,8 +33,6 @@ THREADS_BATCH="${THREADS_BATCH:-32}"
 FA="${FA:-auto}"
 CTK="${CTK:-f16}"
 CTV="${CTV:-f16}"
-# Built-in tools: bash + filesystem helpers. Use TOOLS=all for everything.
-# Available: read_file,file_glob_search,grep_search,exec_shell_command,write_file,edit_file,get_datetime
 TOOLS="${TOOLS:-exec_shell_command,read_file,write_file,file_glob_search,grep_search,get_datetime}"
 THINKING="${THINKING:-false}"
 TEMP="${TEMP:-0.7}"
@@ -50,14 +51,28 @@ if [[ ! -f "$MODEL" ]]; then
   exit 1
 fi
 
-echo "grokson agent"
+# Best-effort LAN addresses for other nodes
+mapfile -t LAN_IPS < <(
+  hostname -I 2>/dev/null | tr ' ' '\n' | grep -E '^[0-9.]+$' | grep -v '^127\.' || true
+)
+if [[ ${#LAN_IPS[@]} -eq 0 ]]; then
+  LAN_IPS=("$(hostname -f 2>/dev/null || hostname)")
+fi
+
+echo "grokson agent (network)"
 echo "  model : $MODEL"
 echo "  server: $SERVER"
 echo "  tools : $TOOLS"
 echo "  bind  : http://${HOST}:${PORT}"
-echo "  UI    : open the URL above (WebUI agent + bash tool)"
+echo "  cors  : ${CORS_ORIGINS}"
+echo "  from other nodes:"
+for ip in "${LAN_IPS[@]}"; do
+  echo "    http://${ip}:${PORT}"
+  echo "    OpenAI base: http://${ip}:${PORT}/v1"
+done
 echo
-echo "  Security: exec_shell_command runs as $(whoami) with no sandbox."
+echo "  Security: shell tools run as $(whoami). This is reachable on the LAN."
+echo "  Firewall: ensure TCP ${PORT} is open if you use one."
 echo "  Stop with Ctrl+C."
 echo
 
@@ -65,6 +80,7 @@ exec "$SERVER" \
   -m "$MODEL" \
   --host "$HOST" \
   --port "$PORT" \
+  --cors-origins "$CORS_ORIGINS" \
   -ngl "$NGL" \
   -c "$CTX" \
   -b "$BATCH" \

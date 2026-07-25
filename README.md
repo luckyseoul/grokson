@@ -57,16 +57,28 @@ grokson agent                                    # WebUI + bash tool
 Optional config file: `~/.config/grokson/env` or repo `.env`.
 
 
-## Agent mode (bash + tools)
+## Agent mode (bash + tools, LAN access)
 
-Plain `grokson` is CLI chat only. For **bash access** and file tools, use llama-server’s built-in agent tools:
+Plain `grokson` is local CLI chat. For **bash tools** on a **headless** box, reachable from other machines:
 
 ```bash
 grokson agent
-# → http://127.0.0.1:8080  (WebUI)
+# binds 0.0.0.0:8080 by default
+# prints LAN URLs, e.g. http://192.168.x.x:8080
 ```
 
-Enabled by default in agent mode:
+From another node (browser, curl, OpenAI-compatible client):
+
+```bash
+# WebUI
+http://<server-ip>:8080
+
+# OpenAI-compatible API
+export OPENAI_BASE_URL=http://<server-ip>:8080/v1
+curl http://<server-ip>:8080/v1/models
+```
+
+Default tools:
 
 | Tool | Role |
 |------|------|
@@ -76,14 +88,14 @@ Enabled by default in agent mode:
 | `get_datetime` | clock |
 
 ```bash
-# every built-in tool (more power, more risk)
-TOOLS=all grokson agent
-
-# custom port
-PORT=8090 grokson agent
+TOOLS=all grokson agent          # all built-in tools
+PORT=8090 grokson agent          # custom port
+HOST=0.0.0.0 grokson agent       # explicit all-interfaces (default)
+CORS_ORIGINS='*' grokson agent   # default; required so remote UIs work with --tools
+HOST=127.0.0.1 grokson agent     # lock to local only if you want
 ```
 
-**Security:** tools run as your Linux user with **no sandbox**. Default bind is `127.0.0.1` only. Do not expose the port or enable tools on untrusted networks/content.
+**Security:** shell tools run as the server user with **no sandbox**. Binding `0.0.0.0` means **anyone who can reach the port** can drive the model and tools. Use firewall / trusted LAN / VPN. Open TCP `PORT` on the host firewall if needed.
 
 ## Tuned defaults (V100 16GB bench)
 
