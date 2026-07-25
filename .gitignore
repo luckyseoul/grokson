@@ -1,0 +1,7 @@
+.env
+*.gguf
+vendor/
+.local/
+__pycache__/
+*.log
+.DS_Store
