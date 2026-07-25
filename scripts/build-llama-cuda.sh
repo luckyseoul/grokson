@@ -10,7 +10,8 @@
 #   CUDA_HOME=/usr/local/cuda-12.8 PREFIX=$HOME/.local/share/grokson ./scripts/build-llama-cuda.sh
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+_SCRIPT="$(readlink -f "${BASH_SOURCE[0]}")"
+ROOT="$(cd "$(dirname "$_SCRIPT")/.." && pwd)"
 PREFIX="${PREFIX:-$HOME/.local/share/grokson}"
 LLAMA_DIR="${LLAMA_DIR:-$PREFIX/llama.cpp}"
 BUILD_DIR="${BUILD_DIR:-$LLAMA_DIR/build-cuda}"

@@ -2,7 +2,8 @@
 # Install `grokson` on PATH and as a bash alias.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+_SCRIPT="$(readlink -f "${BASH_SOURCE[0]}")"
+ROOT="$(cd "$(dirname "$_SCRIPT")/.." && pwd)"
 BIN_DIR="${BIN_DIR:-$HOME/bin}"
 mkdir -p "$BIN_DIR"
 ln -sfn "$ROOT/scripts/grokson.sh" "$BIN_DIR/grokson"
