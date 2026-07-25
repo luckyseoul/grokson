@@ -3,7 +3,8 @@
 # WARNING: tools run as your user with full shell access. Anyone who can reach PORT can drive the shell.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+_SCRIPT="$(readlink -f "${BASH_SOURCE[0]}")"
+ROOT="$(cd "$(dirname "$_SCRIPT")/.." && pwd)"
 # shellcheck disable=SC1091
 [[ -f "${GROKSON_ENV:-$HOME/.config/grokson/env}" ]] && source "${GROKSON_ENV:-$HOME/.config/grokson/env}"
 [[ -f "$ROOT/.env" ]] && source "$ROOT/.env"

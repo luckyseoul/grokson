@@ -12,7 +12,9 @@
 #   ngl 28 fixed   ~69 PP / ~15 TG
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Resolve symlinks (e.g. ~/bin/grokson → repo/scripts/grokson.sh)
+_SCRIPT="$(readlink -f "${BASH_SOURCE[0]}")"
+ROOT="$(cd "$(dirname "$_SCRIPT")/.." && pwd)"
 
 # Subcommands
 case "${1:-}" in
