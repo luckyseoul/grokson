@@ -66,7 +66,8 @@ if [[ ! -x "$CLI" ]]; then
 fi
 
 NGL="${NGL:--1}"
-CTX="${CTX:-4096}"
+# 0 = model max (Qwen3.6-35B-A3B: 262144)
+CTX="${CTX:-0}"
 N="${N:--1}"
 BATCH="${BATCH:-2048}"
 UBATCH="${UBATCH:-512}"

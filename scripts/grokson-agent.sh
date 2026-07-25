@@ -26,7 +26,9 @@ PORT="${PORT:-8080}"
 # llama-server forces CORS to localhost when --tools is set unless we override explicitly
 CORS_ORIGINS="${CORS_ORIGINS:-*}"
 NGL="${NGL:--1}"
-CTX="${CTX:-8192}"
+# 0 = load model max (Qwen3.6-35B-A3B: 262144). One slot so KV isn't split.
+CTX="${CTX:-0}"
+NP="${NP:-1}"
 BATCH="${BATCH:-2048}"
 UBATCH="${UBATCH:-512}"
 THREADS="${THREADS:-16}"
@@ -34,6 +36,8 @@ THREADS_BATCH="${THREADS_BATCH:-32}"
 FA="${FA:-auto}"
 CTK="${CTK:-f16}"
 CTV="${CTV:-f16}"
+# -1 = unlimited cache RAM for long context
+CACHE_RAM="${CACHE_RAM:--1}"
 TOOLS="${TOOLS:-exec_shell_command,read_file,write_file,file_glob_search,grep_search,get_datetime}"
 THINKING="${THINKING:-false}"
 TEMP="${TEMP:-0.7}"
@@ -84,6 +88,7 @@ exec "$SERVER" \
   --cors-origins "$CORS_ORIGINS" \
   -ngl "$NGL" \
   -c "$CTX" \
+  -np "$NP" \
   -b "$BATCH" \
   -ub "$UBATCH" \
   -t "$THREADS" \
@@ -91,6 +96,7 @@ exec "$SERVER" \
   -fa "$FA" \
   -ctk "$CTK" \
   -ctv "$CTV" \
+  --cache-ram "$CACHE_RAM" \
   --temp "$TEMP" \
   --top-p "$TOP_P" \
   --top-k "$TOP_K" \
